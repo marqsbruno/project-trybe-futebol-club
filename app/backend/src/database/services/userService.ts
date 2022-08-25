@@ -22,4 +22,12 @@ export default class UserService {
     const token = jwt.sign({ email, password }, secret);
     return token;
   };
+
+  public validateToken = async (token: string) => {
+    const verifyToken = jwt.verify(token, secret);
+    const { email } = verifyToken as jwt.JwtPayload;
+    const user = await User.findOne({ where: { email } });
+    // if para a possibilidade de ser nulo;
+    if (user) return user.role;
+  };
 }
