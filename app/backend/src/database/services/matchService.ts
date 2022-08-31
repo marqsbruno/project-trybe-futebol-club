@@ -40,4 +40,11 @@ export default class MatchService {
   public updateMatch = async (id: number) => {
     await Matches.update({ inProgress: false }, { where: { id } });
   };
+
+  public updateScore = async (id: number, homeTeamGoals: number, awayTeamGoals: number) => {
+    const update = await Matches.update({ homeTeamGoals, awayTeamGoals }, {
+      where: { id },
+    });
+    return update;
+  };
 }
