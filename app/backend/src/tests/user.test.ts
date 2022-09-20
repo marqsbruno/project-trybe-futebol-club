@@ -19,7 +19,7 @@ const userSendMock = {
   password: 'secret_admin',
 }
 
-describe('Testa a rota users' , () => {
+describe('Testa a rota login' , () => {
 
   let chaiHttpResponse: Response;
 
