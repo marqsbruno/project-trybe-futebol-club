@@ -1,3 +1,4 @@
+import ILeaderboard from '../interfaces/Ileaderboard';
 import Matches from '../models/matches';
 import Teams from '../models/teams';
 
@@ -6,23 +7,37 @@ export default class LeaderboardService {
     const teams = await Teams.findAll();
     const matches = await Matches.findAll({ where: { inProgress: false } });
 
+    // manda as partidas filtradas por times evitando um filter em cada conta
+
     const result = await teams.map((team) => {
-      const teamMatches = matches.filter((match) => team.id === match.homeTeam);
+      const tMatch = matches.filter((match) => team.id === match.homeTeam);
       return {
         name: team.teamName,
-        totalPoints: this.countPoints(teamMatches),
-        totalGames: teamMatches.length,
-        totalVictories: this.countVictories(teamMatches),
-        totalDraws: this.countDraws(teamMatches),
-        totalLosses: this.countLosses(teamMatches),
-        goalsFavor: this.countGoalsFavor(teamMatches),
-        goalsOwn: this.countGoalsOwn(teamMatches),
-        goalsBalance: this.countGoalsFavor(teamMatches) - this.countGoalsOwn(teamMatches),
-        efficiency: ((this.countPoints(teamMatches) / (teamMatches.length * 3)) * 100).toFixed(2),
-      };
+        totalPoints: this.countPoints(tMatch),
+        totalGames: tMatch.length,
+        totalVictories: this.countVictories(tMatch),
+        totalDraws: this.countDraws(tMatch),
+        totalLosses: this.countLosses(tMatch),
+        goalsFavor: this.countGoalsFavor(tMatch),
+        goalsOwn: this.countGoalsOwn(tMatch),
+        goalsBalance: this.countGoalsFavor(tMatch) - this.countGoalsOwn(tMatch),
+        efficiency: Number(((this.countPoints(tMatch) / (tMatch.length * 3)) * 100).toFixed(2)) };
     });
-    return result;
-    // mandar as partidas filtradas já evitando um filter para cada conta;
+    const sortResult = this.sortLeaderboard(result);
+    return sortResult;
+  };
+
+  // https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
+
+  public sortLeaderboard = (leaderboard: ILeaderboard[]) => {
+    const sorted = leaderboard.sort((a, b) =>
+      b.totalPoints - a.totalPoints
+      || b.totalVictories - a.totalVictories
+      || b.goalsBalance - a.goalsBalance
+      || b.goalsFavor - a.goalsFavor
+      || b.goalsOwn - a.goalsOwn);
+
+    return sorted;
   };
 
   public countPoints = (matches: Matches[]) => {
