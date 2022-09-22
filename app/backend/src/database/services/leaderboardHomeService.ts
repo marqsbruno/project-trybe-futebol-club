@@ -2,7 +2,7 @@ import ILeaderboard from '../interfaces/Ileaderboard';
 import Matches from '../models/matches';
 import Teams from '../models/teams';
 
-export default class LeaderboardService {
+export default class LeaderboardHomeService {
   public getHomeLeaderboard = async () => {
     const teams = await Teams.findAll();
     const matches = await Matches.findAll({ where: { inProgress: false } });
